@@ -1,18 +1,119 @@
-import React from 'react';
-import { Card, CardImg, CardText, CardBody,
-    CardTitle, Breadcrumb, BreadcrumbItem } from 'reactstrap';
+import React, { Component } from 'react';
+import { Control, Errors, LocalForm } from 'react-redux-form';
 import { Link } from 'react-router-dom';
+import {
+    Breadcrumb, BreadcrumbItem,
+    Button, Card, CardBody, CardImg, CardText,
+    CardTitle, Col, Label, Modal, ModalBody, ModalHeader, Row
+} from 'reactstrap';
 
-        function renderDish({dish}) {
+    class CommentForm extends Component {
+        constructor(props) {
+            super(props);
+            this.toggleModal = this.toggleModal.bind(this);
+            this.handleLogin = this.handleLogin.bind(this);
+            this.state = {
+                isModalOpen: false,
+                lastname: '',
+                    touched: {
+                        lastname: false,
+                    }
+          };
+        }
+        validate(lastname) {
+            const errors = {
+                lastname: '',
+            };
     
+            if (this.state.touched.lastname && lastname.length < 3)
+                errors.lastname = 'Last Name should be >= 3 characters';
+            else if (this.state.touched.lastname && lastname.length > 10)
+                errors.lastname = 'Last Name should be <= 10 characters';
+            return errors;
+        }
+
+        handleLogin(event) {
+            this.toggleModal();
+            alert("Username: ");
+            event.preventDefault();
+        }
+        toggleModal() {
+            this.setState({
+              isModalOpen: !this.state.isModalOpen
+            });
+        }
+    
+        render () {
+            const errors = this.validate(this.state.lastname);
+            const required = (val) => val && val.length;
+            const maxLength = (len) => (val) => !(val) || (val.length <= len);
+            const minLength = (len) => (val) => val && (val.length >= len); 
+        return (
+            <div>
+            <Button outline onClick={this.toggleModal}><span className="fa fa-pencil"></span> Submit Comment</Button>    
+            <Modal isOpen={this.state.isModalOpen} toggle={this.toggleModal}>
+                    <ModalHeader toggle={this.toggleModal}>Login</ModalHeader>
+                    <ModalBody>
+                    <LocalForm onSubmit={(values) => this.handleSubmit(values)}>
+                    <div class="form-group">
+    <label for="exampleFormControlSelect1">Example select</label>
+    <select class="form-control" id="exampleFormControlSelect1">
+      <option>1</option>
+      <option>2</option>
+      <option>3</option>
+      <option>4</option>
+      <option>5</option>
+      <option>6</option>
+      <option>7</option>
+      <option>8</option>
+      <option>9</option>
+      <option>10</option>
+    </select>
+  </div>
+                            <Row className="form-group">
+                                <Label htmlFor="lastname">Your Name</Label>
+                                <Col md={12}>
+                                    <Control.text model=".lastname" id="lastname" name="lastname"
+                                        placeholder="Your Name"
+                                        className="form-control"
+                                        validators={{
+                                            required, minLength: minLength(3), maxLength: maxLength(15)
+                                        }}
+                                         />
+                                    <Errors
+                                        className="text-danger"
+                                        model=".lastname"
+                                        show="touched"
+                                        messages={{
+                                            required: 'Required',
+                                            minLength: 'Must be greater than 2 characters',
+                                            maxLength: 'Must be 15 characters or less'
+                                        }}
+                                     />
+                                </Col>
+                            </Row>
+                            <Row className="form-group">
+                                <label for="exampleFormControlTextarea1">Example textarea</label>
+                                <textarea class="form-control" id="exampleFormControlTextarea1" rows="6"></textarea>
+                            </Row>
+                            <Button type="submit" value="submit" color="primary">Submit</Button>
+                        </LocalForm>
+                    </ModalBody>
+            </Modal>
+        </div>
+        )
+        }
+    }
+
+        function RenderDish(dish) {
             if (dish != null) {
                 return (
-                    <div className='col-12 col-md-5 m-1'>
+                    <div className='col-12 m-1'>
                         <Card>
-                            <CardImg width="100%" src={dish.image} alt={dish.name} />
+                            <CardImg width="100%" src={dish.dish.image} alt={dish.dish.name} />
                             <CardBody>
-                                <CardTitle> {dish.name}</CardTitle>
-                                <CardText> {dish.description} </CardText>
+                                <CardTitle> {dish.dish.name}</CardTitle>
+                                <CardText> {dish.dish.description} </CardText>
                             </CardBody>
                         </Card>
                     </div>   
@@ -25,11 +126,11 @@ import { Link } from 'react-router-dom';
             }
         }
     
-        function renderComments({comments}){
+        function RenderComments({comments}){
             if (comments == null) {
                 return (<div></div>)
             }
-            const cmnts = comments.map(comment => {
+            const commentt = comments.map(comment => {
                 return (
                     <li key={comment.id}>
                         <p>{comment.comment}</p>
@@ -45,23 +146,26 @@ import { Link } from 'react-router-dom';
                 )
             })
             return (
-                <div className='col-12 col-md-5 m-1'>
+                <div className='col-12 m-1 col-md-9'>
                     <h4> Comments </h4>
-                    <ul className='list-unstyled'>
-                        {cmnts}
+                    <ul className='list-unstyled row'>
+                        {commentt}
+                        <li>
+                            <CommentForm/>
+                        </li>
                     </ul>
     
                 </div>
             )
         }
+
 const Dishdetail= (props) => {
-    console.log(props);
      if (props.dish != null) {     
         return (
              <div className="container">
                 <div className="row">
                     <Breadcrumb>
-
+                    <BreadcrumbItem><Link to="/home">Home</Link></BreadcrumbItem>
                         <BreadcrumbItem><Link to="/menu">Menu</Link></BreadcrumbItem>
                         <BreadcrumbItem active>{props.dish.name}</BreadcrumbItem>
                     </Breadcrumb>
@@ -72,13 +176,13 @@ const Dishdetail= (props) => {
                 </div>
                 <div className="row">
                     <div className="col-12 col-md-5 m-1">
-                        <renderDish dish={props.dish} />
+                        <RenderDish dish={props.dish} />
                     </div>
                     <div className="col-12 col-md-5 m-1">
-                        <renderComments comments={props.comments} />
+                        <RenderComments comments={props.comments} />
                     </div>
                 </div>
-                </div>
+            </div>
         )}
         else {
             return (
