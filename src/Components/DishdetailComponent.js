@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import { Control, Errors, LocalForm } from 'react-redux-form';
+import {actions, Control, Errors, LocalForm } from 'react-redux-form';
 import { Link } from 'react-router-dom';
 import {
     Breadcrumb, BreadcrumbItem,
     Button, Card, CardBody, CardImg, CardText,
     CardTitle, Col, Label, Modal, ModalBody, ModalHeader, Row
 } from 'reactstrap';
+import { Loading } from './LoadingComponent';
 
     class CommentForm extends Component {
         constructor(props) {
@@ -33,7 +34,7 @@ import {
         }
 
         handleLogin(event) {
-            this.toggleModal();
+            
             alert("Username: ");
             event.preventDefault();
         }
@@ -41,6 +42,11 @@ import {
             this.setState({
               isModalOpen: !this.state.isModalOpen
             });
+        }
+        handleSubmit(values) {
+            this.toggleModal();
+            this.props.addComment(this.props.dishId, values.rating, values.author, values.comment);
+            this.props.resetFeedbackForm();
         }
     
         render () {
@@ -54,7 +60,7 @@ import {
             <Modal isOpen={this.state.isModalOpen} toggle={this.toggleModal}>
                     <ModalHeader toggle={this.toggleModal}>Login</ModalHeader>
                     <ModalBody>
-                    <LocalForm onSubmit={(values) => this.handleSubmit(values)}>
+                    <LocalForm model="feedback" onSubmit={(values) => this.handleSubmit(values)}>
                     <div class="form-group">
     <label for="exampleFormControlSelect1">Example select</label>
     <select class="form-control" id="exampleFormControlSelect1">
@@ -126,7 +132,7 @@ import {
             }
         }
     
-        function RenderComments({comments}){
+        function RenderComments({comments, addComment, dishId}) {
             if (comments == null) {
                 return (<div></div>)
             }
@@ -151,7 +157,7 @@ import {
                     <ul className='list-unstyled row'>
                         {commentt}
                         <li>
-                            <CommentForm/>
+                        <CommentForm dishId={dishId} addComment={addComment} />
                         </li>
                     </ul>
     
@@ -160,6 +166,25 @@ import {
         }
 
 const Dishdetail= (props) => {
+    if (props.isLoading) {
+        return(
+            <div className="container">
+                <div className="row">            
+                    <Loading />
+                </div>
+            </div>
+        );
+    }
+    else if (props.errMess) {
+        return(
+            <div className="container">
+                <div className="row">            
+                    <h4>{props.errMess}</h4>
+                </div>
+            </div>
+        );
+    }
+    else if (props.dish != null) 
      if (props.dish != null) {     
         return (
              <div className="container">
@@ -179,7 +204,10 @@ const Dishdetail= (props) => {
                         <RenderDish dish={props.dish} />
                     </div>
                     <div className="col-12 col-md-5 m-1">
-                        <RenderComments comments={props.comments} />
+                    <RenderComments comments={props.comments}
+        addComment={props.addComment}
+        dishId={props.dish.id}
+      />
                     </div>
                 </div>
             </div>
