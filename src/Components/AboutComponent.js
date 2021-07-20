@@ -1,32 +1,11 @@
 import React from 'react';
 import { Breadcrumb, BreadcrumbItem, Card, CardBody, CardHeader, Media } from 'reactstrap';
 import { Link } from 'react-router-dom';
-import { Loading } from './LoadingComponent';
 
 function About(props) {
 
     const RenderLeaders = () => {
-        if (props.isLoading) {
-            return(
-                <div className="container">
-                    <div className="row">            
-                        <Loading />
-                    </div>
-                </div>
-            );
-        }
-        else if (props.errMess) {
-            return(
-                <div className="container">
-                    <div className="row">            
-                        <h4>{props.errMess}</h4>
-                    </div>
-                </div>
-            );
-        }
-        else if (props.dish != null) 
-         if (props.dish != null) {    
-            return (
+        return (
                 <div className= "col col-12 m-1">
                     {props.leaders.map((leader) => {
                         return (
@@ -44,7 +23,6 @@ function About(props) {
                     })}
                 </div>
         )
-    }
     }
 
     const leaders = props.leaders.map((leader) => {

@@ -14,8 +14,9 @@ import {LEADERS} from '../shared/leaders';
 import {PROMOTIONS} from '../shared/promotions';
 import { Switch, Route, Redirect, withRouter } from 'react-router-dom'
 import { connect } from 'react-redux';
+import { addComment, fetchDishes } from '../redux/ActionCreators';
 import { actions } from 'react-redux-form';
-import { fetchLeaders, addComment, fetchDishes, fetchComments, fetchPromos, postFeedback } from '../redux/ActionCreators';
+import { addComment, fetchDishes, fetchComments, fetchPromos } from '../redux/ActionCreators';
 
 const mapStateToProps = state => {
   return {
@@ -31,9 +32,7 @@ const mapDispatchToProps = dispatch => ({
   fetchDishes: () => { dispatch(fetchDishes())},
   resetFeedbackForm: () => { dispatch(actions.reset('feedback'))},
   fetchComments: () => dispatch(fetchComments()),
-  fetchPromos: () => dispatch(fetchPromos()),
-  fetchLeaders: () => dispatch(fetchLeaders()),
-  postFeedback: (firstname, lastname, telnum, email, agree, contactType, message) => {dispatch(actions.postFeedback(firstname, lastname, telnum, email, agree, contactType, message))},
+  fetchPromos: () => dispatch(fetchPromos())
 });
 
 class Main extends React.Component {
@@ -50,11 +49,9 @@ class Main extends React.Component {
     this.props.fetchDishes();
     this.props.fetchComments();
     this.props.fetchPromos();
-    this.props.fetchLeaders();
   }
   render(){ 
     const HomePage = () => {
-      console.log(this.props);
       return(
         <Home 
         dish={this.props.dishes.dishes.filter((dish) => dish.featured)[0]}
@@ -63,9 +60,7 @@ class Main extends React.Component {
         promotion={this.props.promotions.promotions.filter((promo) => promo.featured)[0]}
         promoLoading={this.props.promotions.isLoading}
         promoErrMess={this.props.promotions.errMess}
-        leader={this.props.leaders.leaders.filter((leader) => leader.featured)[0]}
-        leadersLoading={this.props.leaders.isLoading}
-        leadersErrMess={this.props.leaders.errMess}
+        leader={this.props.leaders.filter((leader) => leader.featured)[0]}
     />
       );
     }
